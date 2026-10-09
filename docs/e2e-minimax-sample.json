@@ -1,0 +1,173 @@
+{
+  "plant": "soft",
+  "plant_info": {
+    "aura_bin": "/home/dev/code/aura/build/aura",
+    "aura_bin_sha256": "46301bdfd1646da8a5beb95a983d333d0ed9908c2e6edaa7888ef4625f5bf3a9",
+    "aura_src_head": "bfe6dc48db02ba725aa7782cbbe2f41789ce1b5b",
+    "aura_lib": "/home/dev/code/aura/lib"
+  },
+  "controller": {
+    "kind": "edsl-patch",
+    "policy": "minimax",
+    "edsl_patch_dir": "/tmp/al-e2e/edsl-patch",
+    "edsl_patch_sha": "4f2b3c01b75618068511270d0cb0700dfed230d7"
+  },
+  "transitions": [
+    {
+      "state_before": {
+        "repo": "fixtures",
+        "path": "/tmp/al-e2e/aura-loop/fixtures/tiny.scm",
+        "symbol": "clamp",
+        "sha": "a26fa5f8d3e7",
+        "step": 0,
+        "define": "(define (clamp x lo hi) (max lo (min x)))",
+        "params": [
+          "x",
+          "lo",
+          "hi"
+        ],
+        "type_errors": [
+          "arity: (min x) — `min` expects >=2 args, got 1"
+        ],
+        "history_ptr": null
+      },
+      "observation": {
+        "repo": "fixtures",
+        "symbol": "clamp",
+        "define_src": "(define (clamp x lo hi) (max lo (min x)))",
+        "params": [
+          "x",
+          "lo",
+          "hi"
+        ],
+        "type_errors": [],
+        "state_sha": "a26fa5f8d3e7",
+        "history": {
+          "KEEP": 2,
+          "ROLLBACK": 1
+        },
+        "gate_errors": [
+          "test failed on Aura: clamp-high"
+        ],
+        "intent": "Fix clamp without changing its signature: test failed on Aura: clamp-high",
+        "healthy": false
+      },
+      "control": {
+        "symbol": "clamp",
+        "source": "edsl-patch:minimax:MiniMax-M3:repaired1",
+        "intent": "Pass hi to min so the outer max returns hi when x exceeds it; keeps x within [lo, hi].",
+        "new_src": "(define (clamp x lo hi) (max lo (min x hi)))",
+        "patch": [
+          {
+            "kind": "query",
+            "op": "find",
+            "name": "clamp"
+          },
+          {
+            "kind": "synthesis",
+            "op": "rebind",
+            "name": "clamp",
+            "body": "(lambda (x lo hi) (max lo (min x hi)))",
+            "summary": "Pass hi to min so the outer max returns hi when x exceeds it; keeps x within [lo, hi]."
+          }
+        ]
+      },
+      "verdict": "KEEP",
+      "reason": "aura mutate:rebind #t, tests pass on Aura",
+      "memory_id": 4,
+      "state_after": {
+        "repo": "fixtures",
+        "path": "/tmp/al-e2e/aura-loop/fixtures/tiny.scm",
+        "symbol": "clamp",
+        "sha": "d0aedbfe9dda",
+        "step": 1,
+        "define": "(define (clamp x lo hi) (max lo (min x hi)))",
+        "params": [
+          "x",
+          "lo",
+          "hi"
+        ],
+        "type_errors": [],
+        "history_ptr": 4
+      }
+    },
+    {
+      "state_before": {
+        "repo": "fixtures",
+        "path": "/tmp/al-e2e/aura-loop/fixtures/tiny.scm",
+        "symbol": "clamp",
+        "sha": "d0aedbfe9dda",
+        "step": 1,
+        "define": "(define (clamp x lo hi) (max lo (min x hi)))",
+        "params": [
+          "x",
+          "lo",
+          "hi"
+        ],
+        "type_errors": [],
+        "history_ptr": 4
+      },
+      "observation": {
+        "repo": "fixtures",
+        "symbol": "clamp",
+        "define_src": "(define (clamp x lo hi) (max lo (min x hi)))",
+        "params": [
+          "x",
+          "lo",
+          "hi"
+        ],
+        "type_errors": [],
+        "state_sha": "d0aedbfe9dda",
+        "history": {
+          "KEEP": 3,
+          "ROLLBACK": 1
+        },
+        "gate_errors": [],
+        "intent": "",
+        "healthy": true
+      },
+      "control": {
+        "symbol": "clamp",
+        "source": "identity",
+        "intent": "healthy: no-op",
+        "new_src": "(define (clamp x lo hi) (max lo (min x hi)))",
+        "patch": null
+      },
+      "verdict": "NOOP",
+      "reason": "healthy: no-op",
+      "memory_id": null,
+      "state_after": {
+        "repo": "fixtures",
+        "path": "/tmp/al-e2e/aura-loop/fixtures/tiny.scm",
+        "symbol": "clamp",
+        "sha": "d0aedbfe9dda",
+        "step": 1,
+        "define": "(define (clamp x lo hi) (max lo (min x hi)))",
+        "params": [
+          "x",
+          "lo",
+          "hi"
+        ],
+        "type_errors": [],
+        "history_ptr": 4
+      }
+    }
+  ],
+  "final_state": {
+    "repo": "fixtures",
+    "path": "/tmp/al-e2e/aura-loop/fixtures/tiny.scm",
+    "symbol": "clamp",
+    "sha": "d0aedbfe9dda",
+    "step": 1,
+    "define": "(define (clamp x lo hi) (max lo (min x hi)))",
+    "params": [
+      "x",
+      "lo",
+      "hi"
+    ],
+    "type_errors": [],
+    "history_ptr": 4
+  },
+  "converged": true,
+  "memory_rows": 4
+}

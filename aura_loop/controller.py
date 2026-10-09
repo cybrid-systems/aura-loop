@@ -1,7 +1,7 @@
 """Controller pi(y, memory) -> u. MVP: retrieval-only. An LLM controller plugs in later."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Protocol
 
 from .memory import Memory
@@ -13,7 +13,12 @@ class Control:
     symbol: str
     new_src: str
     intent: str
-    source: str            # "memory:<id>" | "identity" | "llm:<model>" (later)
+    source: str            # "memory:<id>" | "identity" | "edsl-patch:<policy>[:...]"
+    patch: list | None = field(default=None, compare=False)   # edsl-patch patch array, when produced
+
+    def as_dict(self) -> dict:
+        return {"symbol": self.symbol, "source": self.source, "intent": self.intent,
+                "new_src": self.new_src, "patch": self.patch}
 
     @property
     def is_identity(self) -> bool:

@@ -60,10 +60,44 @@ def to_src(x: Any) -> str:
 
 
 def define_header(form: Any) -> tuple[str, list[str]] | None:
-    """Return (name, params) for `(define (name . params) body...)`."""
-    if isinstance(form, list) and len(form) >= 3 and form[0] == "define" and isinstance(form[1], list) and form[1]:
+    """Return (name, params) for `(define (name . params) body...)` or `(define name (lambda (params) body...))`."""
+    if not (isinstance(form, list) and len(form) >= 3 and form[0] == "define"):
+        return None
+    if isinstance(form[1], list) and form[1]:
         return form[1][0], list(form[1][1:])
+    lam = form[2]
+    if (isinstance(form[1], str) and len(form) == 3 and isinstance(lam, list) and len(lam) >= 3
+            and lam[0] == "lambda" and isinstance(lam[1], list)):
+        return form[1], list(lam[1])
     return None
+
+
+def canonical_define(form: Any) -> list:
+    """Normalize either define style to sugar form `(define (name params...) body...)`."""
+    h = define_header(form)
+    if h is None:
+        raise ParseError("not a define")
+    if isinstance(form[1], list):
+        return form
+    lam = form[2]
+    return ["define", [form[1], *lam[1]], *lam[2:]]
+
+
+def define_to_lambda(define_src: str) -> tuple[str, str]:
+    """`(define (f a b) body)` -> ("f", "(lambda (a b) body)")  — the edsl-patch rebind.body shape."""
+    form = canonical_define(parse_all(define_src)[0])
+    name, params, body = form[1][0], form[1][1:], form[2:]
+    return name, to_src(["lambda", list(params), *body])
+
+
+def lambda_to_define(name: str, lambda_src: str) -> str:
+    """("f", "(lambda (a b) body)") -> "(define (f a b) body)"."""
+    forms = parse_all(lambda_src)
+    if len(forms) != 1 or not isinstance(forms[0], list) or len(forms[0]) < 3 or forms[0][0] != "lambda" \
+            or not isinstance(forms[0][1], list):
+        raise ParseError("rebind.body must be one (lambda (params) body...) form")
+    lam = forms[0]
+    return to_src(["define", [name, *lam[1]], *lam[2:]])
 
 
 # name -> (min_args, max_args or None). Toy table; real gate is Aura's type checker.

@@ -5,7 +5,7 @@ import hashlib
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 
-from .sexpr import ParseError, arity_errors, define_header, parse_all, to_src
+from .sexpr import ParseError, arity_errors, canonical_define, define_header, parse_all, to_src
 
 
 @dataclass(frozen=True)
@@ -38,7 +38,7 @@ class WorkspaceState:
         for f in forms:
             h = define_header(f)
             if h and (symbol is None or h[0] == symbol):
-                dsrc = to_src(f)
+                dsrc = to_src(canonical_define(f))
                 return cls(repo=repo, path=path, symbol=h[0], source=source, define_src=dsrc,
                            params=tuple(h[1]), type_errors=cls.check(dsrc))
         raise ValueError(f"define {symbol!r} not found")
@@ -56,8 +56,13 @@ class WorkspaceState:
             h = define_header(f)
             out.append(new_define_src if h and h[0] == self.symbol else to_src(f))
         new_source = "\n".join(out) + "\n"
-        return replace(self, source=new_source, define_src=to_src(parse_all(new_define_src)[0]),
+        return replace(self, source=new_source, define_src=to_src(canonical_define(parse_all(new_define_src)[0])),
                        type_errors=self.check(new_define_src), step=self.step + 1)
+
+    def as_dict(self) -> dict:
+        return {"repo": self.repo, "path": self.path, "symbol": self.symbol, "sha": self.sha, "step": self.step,
+                "define": self.define_src, "params": list(self.params), "type_errors": list(self.type_errors),
+                "history_ptr": self.history_ptr}
 
     def with_history(self, ptr: int | None) -> "WorkspaceState":
         return replace(self, history_ptr=ptr)

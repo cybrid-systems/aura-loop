@@ -1,0 +1,3 @@
+[submodule "third_party/edsl-patch"]
+	path = third_party/edsl-patch
+	url = https://github.com/cybrid-systems/edsl-patch
