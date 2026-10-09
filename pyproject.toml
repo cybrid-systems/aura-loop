@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aura-loop"
+version = "0.1.0"
+description = "Closed-loop control over an Aura EDSL workspace: observe -> retrieve -> rebind -> gate -> write back (MVP)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[tool.setuptools]
+packages = ["aura_loop"]
