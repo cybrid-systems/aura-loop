@@ -1,0 +1,102 @@
+{
+  "default_floor_us": 50.0,
+  "default_threshold": 10.0,
+  "kernels": {
+    "vbad-mix": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [
+        10,
+        1,
+        9,
+        18
+      ],
+      "source": "knn:bucket:v1|add|len4^6",
+      "threshold": 4.2
+    },
+    "vcount-above": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [
+        14,
+        5
+      ],
+      "source": "knn:bucket:v1|cond|len4^6",
+      "threshold": 5.74
+    },
+    "vdot": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [
+        2,
+        11
+      ],
+      "source": "knn:bucket:v2|*|len4^6",
+      "threshold": 6.72
+    },
+    "vdot-short": {
+      "action": "sink",
+      "floor_us": 642.9,
+      "precedents": [
+        8,
+        17
+      ],
+      "source": "knn:bucket:v2|*|len4^3:floor",
+      "threshold": 10.0
+    },
+    "vmaxabs": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [
+        6,
+        15
+      ],
+      "source": "knn:bucket:v1|abs+max|len4^6",
+      "threshold": 8.12
+    },
+    "vnorm2": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [
+        3,
+        12
+      ],
+      "source": "knn:bucket:v1|*+sqrt|len4^6",
+      "threshold": 7.58
+    },
+    "vscaled": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [
+        13,
+        4
+      ],
+      "source": "knn:bucket:v1|*|len4^6",
+      "threshold": 6.16
+    },
+    "vsum": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [
+        10,
+        1,
+        9,
+        18
+      ],
+      "source": "knn:bucket:v1|add|len4^6",
+      "threshold": 4.2
+    },
+    "vsum-short": {
+      "action": "sink",
+      "floor_us": 787.5,
+      "precedents": [
+        7,
+        16
+      ],
+      "source": "knn:bucket:v1|add|len4^3:floor",
+      "threshold": 10.0
+    }
+  },
+  "policy": "knn",
+  "proposal": "knn-r3"
+}

@@ -1,0 +1,71 @@
+{
+  "default_floor_us": 50.0,
+  "default_threshold": 10.0,
+  "kernels": {
+    "vbad-mix": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [],
+      "source": "bandit:greedy:v1|add|len4^6",
+      "threshold": 10.0
+    },
+    "vcount-above": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [],
+      "source": "bandit:greedy:v1|cond|len4^6",
+      "threshold": 10.0
+    },
+    "vdot": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [],
+      "source": "bandit:greedy:v2|*|len4^6",
+      "threshold": 10.0
+    },
+    "vdot-short": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [],
+      "source": "bandit:greedy:v2|*|len4^3",
+      "threshold": 10.0
+    },
+    "vmaxabs": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [],
+      "source": "bandit:greedy:v1|abs+max|len4^6",
+      "threshold": 10.0
+    },
+    "vnorm2": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [],
+      "source": "bandit:greedy:v1|*+sqrt|len4^6",
+      "threshold": 10.0
+    },
+    "vscaled": {
+      "action": "sink",
+      "floor_us": 2000.0,
+      "precedents": [],
+      "source": "bandit:explore:v1|*|len4^6",
+      "threshold": 8.0
+    },
+    "vsum": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [],
+      "source": "bandit:greedy:v1|add|len4^6",
+      "threshold": 10.0
+    },
+    "vsum-short": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [],
+      "source": "bandit:greedy:v1|add|len4^3",
+      "threshold": 10.0
+    }
+  },
+  "policy": "bandit",
+  "proposal": "bandit-r2"
+}

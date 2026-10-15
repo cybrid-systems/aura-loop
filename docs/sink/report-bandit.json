@@ -1,0 +1,494 @@
+{
+  "runner": {
+    "kind": "aura-kernel-sink scripts/policy_all.sh",
+    "sink_repo": "/workspace/aura-kernel-sink-git",
+    "sink_head": "172527b",
+    "aura_bin": "/workspace/aura-main/build-rel/aura"
+  },
+  "rounds": 4,
+  "baseline_threshold": 10.0,
+  "learner": "bandit",
+  "reward_model": {
+    "KEEP": "log(speedup)",
+    "ROLLBACK": -1.0,
+    "ABORT": -2.0,
+    "SKIP": 0.0,
+    "SKIP@compile": -0.1
+  },
+  "per_round": {
+    "fixed": [
+      {
+        "arm": "fixed",
+        "round": 1,
+        "proposal": {
+          "proposal": "fixed-r1",
+          "policy": "fixed:10",
+          "default_threshold": 10.0,
+          "default_floor_us": 50.0,
+          "kernels": {}
+        },
+        "seconds": 20.4,
+        "keep": 3,
+        "rollback": 5,
+        "skip": 1,
+        "abort": 0,
+        "kept_speedup_sum": 34.8,
+        "kept_speedup_geomean": 11.58,
+        "reward": 2.247,
+        "kept": [
+          "vmaxabs",
+          "vnorm2",
+          "vscaled"
+        ],
+        "rolled_back": [
+          "vcount-above",
+          "vdot",
+          "vdot-short",
+          "vsum",
+          "vsum-short"
+        ]
+      },
+      {
+        "arm": "fixed",
+        "round": 2,
+        "proposal": {
+          "proposal": "fixed-r2",
+          "policy": "fixed:10",
+          "default_threshold": 10.0,
+          "default_floor_us": 50.0,
+          "kernels": {}
+        },
+        "seconds": 19.2,
+        "keep": 2,
+        "rollback": 6,
+        "skip": 1,
+        "abort": 0,
+        "kept_speedup_sum": 25.7,
+        "kept_speedup_geomean": 12.74,
+        "reward": -1.01,
+        "kept": [
+          "vmaxabs",
+          "vnorm2"
+        ],
+        "rolled_back": [
+          "vcount-above",
+          "vdot",
+          "vdot-short",
+          "vscaled",
+          "vsum",
+          "vsum-short"
+        ]
+      },
+      {
+        "arm": "fixed",
+        "round": 3,
+        "proposal": {
+          "proposal": "fixed-r3",
+          "policy": "fixed:10",
+          "default_threshold": 10.0,
+          "default_floor_us": 50.0,
+          "kernels": {}
+        },
+        "seconds": 19.2,
+        "keep": 2,
+        "rollback": 6,
+        "skip": 1,
+        "abort": 0,
+        "kept_speedup_sum": 24.75,
+        "kept_speedup_geomean": 12.3,
+        "reward": -1.081,
+        "kept": [
+          "vmaxabs",
+          "vnorm2"
+        ],
+        "rolled_back": [
+          "vcount-above",
+          "vdot",
+          "vdot-short",
+          "vscaled",
+          "vsum",
+          "vsum-short"
+        ]
+      },
+      {
+        "arm": "fixed",
+        "round": 4,
+        "proposal": {
+          "proposal": "fixed-r4",
+          "policy": "fixed:10",
+          "default_threshold": 10.0,
+          "default_floor_us": 50.0,
+          "kernels": {}
+        },
+        "seconds": 19.3,
+        "keep": 2,
+        "rollback": 6,
+        "skip": 1,
+        "abort": 0,
+        "kept_speedup_sum": 27.0,
+        "kept_speedup_geomean": 13.49,
+        "reward": -0.896,
+        "kept": [
+          "vmaxabs",
+          "vnorm2"
+        ],
+        "rolled_back": [
+          "vcount-above",
+          "vdot",
+          "vdot-short",
+          "vscaled",
+          "vsum",
+          "vsum-short"
+        ]
+      }
+    ],
+    "bandit": [
+      {
+        "arm": "bandit",
+        "round": 1,
+        "proposal": {
+          "proposal": "bandit-r1",
+          "policy": "bandit",
+          "default_threshold": 10.0,
+          "default_floor_us": 50.0,
+          "kernels": {}
+        },
+        "seconds": 18.7,
+        "keep": 2,
+        "rollback": 6,
+        "skip": 1,
+        "abort": 0,
+        "kept_speedup_sum": 22.8,
+        "kept_speedup_geomean": 11.39,
+        "reward": -1.234,
+        "kept": [
+          "vmaxabs",
+          "vnorm2"
+        ],
+        "rolled_back": [
+          "vcount-above",
+          "vdot",
+          "vdot-short",
+          "vscaled",
+          "vsum",
+          "vsum-short"
+        ]
+      },
+      {
+        "arm": "bandit",
+        "round": 2,
+        "proposal": {
+          "proposal": "bandit-r2",
+          "policy": "bandit",
+          "default_threshold": 10.0,
+          "default_floor_us": 50.0,
+          "kernels": {
+            "vsum": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 50.0,
+              "source": "bandit:greedy:v1|add|len4^6",
+              "precedents": []
+            },
+            "vdot": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 50.0,
+              "source": "bandit:greedy:v2|*|len4^6",
+              "precedents": []
+            },
+            "vnorm2": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 50.0,
+              "source": "bandit:greedy:v1|*+sqrt|len4^6",
+              "precedents": []
+            },
+            "vscaled": {
+              "action": "sink",
+              "threshold": 8.0,
+              "floor_us": 2000.0,
+              "source": "bandit:explore:v1|*|len4^6",
+              "precedents": []
+            },
+            "vcount-above": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 50.0,
+              "source": "bandit:greedy:v1|cond|len4^6",
+              "precedents": []
+            },
+            "vmaxabs": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 50.0,
+              "source": "bandit:greedy:v1|abs+max|len4^6",
+              "precedents": []
+            },
+            "vsum-short": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 50.0,
+              "source": "bandit:greedy:v1|add|len4^3",
+              "precedents": []
+            },
+            "vdot-short": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 50.0,
+              "source": "bandit:greedy:v2|*|len4^3",
+              "precedents": []
+            },
+            "vbad-mix": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 50.0,
+              "source": "bandit:greedy:v1|add|len4^6",
+              "precedents": []
+            }
+          }
+        },
+        "seconds": 18.9,
+        "keep": 3,
+        "rollback": 5,
+        "skip": 1,
+        "abort": 0,
+        "kept_speedup_sum": 31.8,
+        "kept_speedup_geomean": 10.51,
+        "reward": 1.956,
+        "kept": [
+          "vmaxabs",
+          "vnorm2",
+          "vscaled"
+        ],
+        "rolled_back": [
+          "vcount-above",
+          "vdot",
+          "vdot-short",
+          "vsum",
+          "vsum-short"
+        ]
+      },
+      {
+        "arm": "bandit",
+        "round": 3,
+        "proposal": {
+          "proposal": "bandit-r3",
+          "policy": "bandit",
+          "default_threshold": 10.0,
+          "default_floor_us": 50.0,
+          "kernels": {
+            "vsum": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 50.0,
+              "source": "bandit:greedy:v1|add|len4^6",
+              "precedents": []
+            },
+            "vdot": {
+              "action": "sink",
+              "threshold": 2.0,
+              "floor_us": 2000.0,
+              "source": "bandit:explore:v2|*|len4^6",
+              "precedents": []
+            },
+            "vnorm2": {
+              "action": "skip",
+              "threshold": 10.0,
+              "floor_us": 50.0,
+              "source": "bandit:explore:v1|*+sqrt|len4^6",
+              "precedents": []
+            },
+            "vscaled": {
+              "action": "skip",
+              "threshold": 10.0,
+              "floor_us": 50.0,
+              "source": "bandit:explore:v1|*|len4^6",
+              "precedents": []
+            },
+            "vcount-above": {
+              "action": "skip",
+              "threshold": 10.0,
+              "floor_us": 2000.0,
+              "source": "bandit:explore:v1|cond|len4^6",
+              "precedents": []
+            },
+            "vmaxabs": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 50.0,
+              "source": "bandit:greedy:v1|abs+max|len4^6",
+              "precedents": []
+            },
+            "vsum-short": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 50.0,
+              "source": "bandit:greedy:v1|add|len4^3",
+              "precedents": []
+            },
+            "vdot-short": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 50.0,
+              "source": "bandit:greedy:v2|*|len4^3",
+              "precedents": []
+            },
+            "vbad-mix": {
+              "action": "sink",
+              "threshold": 2.0,
+              "floor_us": 500.0,
+              "source": "bandit:explore:v1|add|len4^6",
+              "precedents": []
+            }
+          }
+        },
+        "seconds": 17.5,
+        "keep": 2,
+        "rollback": 3,
+        "skip": 4,
+        "abort": 0,
+        "kept_speedup_sum": 23.35,
+        "kept_speedup_geomean": 11.49,
+        "reward": 1.783,
+        "kept": [
+          "vdot",
+          "vmaxabs"
+        ],
+        "rolled_back": [
+          "vdot-short",
+          "vsum",
+          "vsum-short"
+        ]
+      },
+      {
+        "arm": "bandit",
+        "round": 4,
+        "proposal": {
+          "proposal": "bandit-r4",
+          "policy": "bandit",
+          "default_threshold": 10.0,
+          "default_floor_us": 50.0,
+          "kernels": {
+            "vsum": {
+              "action": "sink",
+              "threshold": 2.0,
+              "floor_us": 500.0,
+              "source": "bandit:greedy:v1|add|len4^6",
+              "precedents": []
+            },
+            "vdot": {
+              "action": "sink",
+              "threshold": 2.0,
+              "floor_us": 2000.0,
+              "source": "bandit:greedy:v2|*|len4^6",
+              "precedents": []
+            },
+            "vnorm2": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 50.0,
+              "source": "bandit:greedy:v1|*+sqrt|len4^6",
+              "precedents": []
+            },
+            "vscaled": {
+              "action": "sink",
+              "threshold": 8.0,
+              "floor_us": 2000.0,
+              "source": "bandit:greedy:v1|*|len4^6",
+              "precedents": []
+            },
+            "vcount-above": {
+              "action": "sink",
+              "threshold": 8.0,
+              "floor_us": 50.0,
+              "source": "bandit:explore:v1|cond|len4^6",
+              "precedents": []
+            },
+            "vmaxabs": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 50.0,
+              "source": "bandit:greedy:v1|abs+max|len4^6",
+              "precedents": []
+            },
+            "vsum-short": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 50.0,
+              "source": "bandit:greedy:v1|add|len4^3",
+              "precedents": []
+            },
+            "vdot-short": {
+              "action": "sink",
+              "threshold": 8.0,
+              "floor_us": 2000.0,
+              "source": "bandit:explore:v2|*|len4^3",
+              "precedents": []
+            },
+            "vbad-mix": {
+              "action": "sink",
+              "threshold": 2.0,
+              "floor_us": 500.0,
+              "source": "bandit:greedy:v1|add|len4^6",
+              "precedents": []
+            }
+          }
+        },
+        "seconds": 19.8,
+        "keep": 6,
+        "rollback": 1,
+        "skip": 2,
+        "abort": 0,
+        "kept_speedup_sum": 54.57,
+        "kept_speedup_geomean": 8.94,
+        "reward": 12.04,
+        "kept": [
+          "vcount-above",
+          "vdot",
+          "vmaxabs",
+          "vnorm2",
+          "vscaled",
+          "vsum"
+        ],
+        "rolled_back": [
+          "vsum-short"
+        ]
+      }
+    ]
+  },
+  "totals": {
+    "fixed": {
+      "keep": 9,
+      "rollback": 23,
+      "skip": 4,
+      "abort": 0,
+      "kept_speedup_sum": 112.25,
+      "reward": -0.74
+    },
+    "bandit": {
+      "keep": 13,
+      "rollback": 15,
+      "skip": 8,
+      "abort": 0,
+      "kept_speedup_sum": 132.52,
+      "reward": 14.545
+    }
+  },
+  "totals_after_round1": {
+    "fixed": {
+      "keep": 6,
+      "rollback": 18,
+      "kept_speedup_sum": 77.45,
+      "reward": -2.987
+    },
+    "bandit": {
+      "keep": 11,
+      "rollback": 9,
+      "kept_speedup_sum": 109.72,
+      "reward": 15.779
+    }
+  },
+  "replay_tuples": 27,
+  "workdir": "docs/sink/run-bandit"
+}

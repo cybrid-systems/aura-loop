@@ -65,9 +65,10 @@ def _decide(rows: list[dict], kernel: str, source: str, *, default_threshold: fl
     """Decision for a kernel from the precedents of its shape bucket.
 
     - measured speedups exist and the best one is below `min_worth`: the shape is
-      not worth an FFI boundary -> learned skip floor: floor_us above the Soft
-      cost seen for this shape, so kernel-sink's own profile stage SKIPs it
-      (no compile, no mutation) and any cheaper kernel of this shape too;
+      not worth an FFI boundary -> learned skip floor: the break-even Soft cost
+      min_worth x (soft_us / speedup), so kernel-sink's own profile stage SKIPs
+      it (no compile, no mutation), and a kernel of this shape sinks again
+      only once its Soft cost is high enough to pay;
     - measured speedups exist: threshold = margin * the worst measured speedup
       (clamped at min_threshold): the shape keeps its kernels, and a kernel
       that falls well below what the shape delivers is still rolled back;
@@ -78,8 +79,12 @@ def _decide(rows: list[dict], kernel: str, source: str, *, default_threshold: fl
     sp = _measured(rows)
     if sp:
         if max(sp) < min_worth:
-            soft = max(r["soft_us"] for r in rows if r["soft_us"] > 0)
-            return Decision(kernel, "sink", default_threshold, round(max(default_floor, soft * 1.5), 1),
+            # break-even floor: the sunk call costs about soft_us / speedup at this
+            # size (FFI + guards dominate), so the Soft cost must reach
+            # min_worth x that before sinking can pay.
+            sunk_us = max(r["soft_us"] / r["speedup"] for r in rows
+                          if r["soft_us"] > 0 and r["speedup"] > 0 and r["stage"] == "score")
+            return Decision(kernel, "sink", default_threshold, round(max(default_floor, min_worth * sunk_us), 1),
                             source + ":floor", ids)
         return Decision(kernel, "sink", round(max(min_threshold, margin * min(sp)), 2), default_floor, source, ids)
     if rows and all(r["decision"] == "SKIP" and r["stage"] == "compile" for r in rows):

@@ -53,6 +53,36 @@ def e2e(a) -> int:
     return 0 if out["converged"] else 1
 
 
+def sink(a) -> int:
+    from .memory import Memory
+    from .sink_ingest import ingest
+    from .sink_loop import SinkRunner, compare
+    from .sink_policy import SinkPolicy
+
+    if a.sink_ingest:
+        mem = Memory(a.db)
+        ids = []
+        for f in a.sink_ingest:
+            ids += ingest(mem, f, arm=a.sink_arm)
+        rows = mem.sink_rows()
+        print(json.dumps({"ingested": len(ids), "rows": len(rows),
+                          "replay_tuples": len(SinkPolicy.replay(mem))}, indent=2))
+        return 0
+    repo = a.sink_repo or os.environ.get("SINK_REPO")
+    if not repo:
+        print("--sink needs --sink-repo (or SINK_REPO) pointing at an aura-kernel-sink checkout", file=sys.stderr)
+        return 2
+    runner = SinkRunner(repo, aura_bin=a.aura_bin)
+    log = (lambda s: print(s, file=sys.stderr)) if a.verbose else None
+    out = compare(runner, rounds=a.rounds, baseline_threshold=a.baseline_threshold, learner=a.learner,
+                  workdir=a.sink_workdir, log=log, db_dir=a.sink_db_dir)
+    text = json.dumps(out, indent=2, ensure_ascii=False)
+    if a.out:
+        Path(a.out).write_text(text + "\n")
+    print(text)
+    return 0
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="aura_loop", description="Aura closed-loop control")
     ap.add_argument("--e2e", action="store_true",
@@ -70,7 +100,21 @@ def main(argv=None) -> int:
                     help="edsl-patch controller policy (auto = minimax if configured, else retrieval)")
     ap.add_argument("--no-seed", action="store_true")
     ap.add_argument("-v", "--verbose", action="store_true", help="e2e: human trace on stderr")
+    sk = ap.add_argument_group("aura-kernel-sink loop")
+    sk.add_argument("--sink", action="store_true",
+                    help="closed loop with aura-kernel-sink: fixed-threshold arm vs learning arm, JSON report")
+    sk.add_argument("--sink-repo", default=None, help="aura-kernel-sink checkout (or $SINK_REPO)")
+    sk.add_argument("--sink-ingest", nargs="*", default=None, help="only ingest trajectory files into --db")
+    sk.add_argument("--sink-arm", default="ingest", help="arm label for --sink-ingest rows")
+    sk.add_argument("--rounds", type=int, default=4)
+    sk.add_argument("--baseline-threshold", type=float, default=10.0)
+    sk.add_argument("--learner", choices=["knn", "bandit"], default="knn")
+    sk.add_argument("--sink-workdir", default=None, help="proposals + trajectories per round (default: tmp)")
+    sk.add_argument("--sink-db-dir", default=None, help="keep the per-arm SQLite memories here")
+    sk.add_argument("--out", default=None, help="also write the JSON report here")
     a = ap.parse_args(argv)
+    if a.sink or a.sink_ingest is not None:
+        return sink(a)
     if a.e2e:
         return e2e(a)
     if not a.demo:

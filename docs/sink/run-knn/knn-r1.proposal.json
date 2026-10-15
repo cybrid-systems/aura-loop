@@ -1,0 +1,7 @@
+{
+  "default_floor_us": 50.0,
+  "default_threshold": 10.0,
+  "kernels": {},
+  "policy": "knn",
+  "proposal": "knn-r1"
+}

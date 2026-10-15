@@ -1,0 +1,8 @@
+[fixed] round 1: KEEP 3 ROLLBACK 5 SKIP 1 ABORT 0 kept-speedup-sum 34.8 reward 2.247 (20.4s)
+[fixed] round 2: KEEP 2 ROLLBACK 6 SKIP 1 ABORT 0 kept-speedup-sum 25.7 reward -1.01 (19.2s)
+[fixed] round 3: KEEP 2 ROLLBACK 6 SKIP 1 ABORT 0 kept-speedup-sum 24.75 reward -1.081 (19.2s)
+[fixed] round 4: KEEP 2 ROLLBACK 6 SKIP 1 ABORT 0 kept-speedup-sum 27.0 reward -0.896 (19.3s)
+[bandit] round 1: KEEP 2 ROLLBACK 6 SKIP 1 ABORT 0 kept-speedup-sum 22.8 reward -1.234 (18.7s)
+[bandit] round 2: KEEP 3 ROLLBACK 5 SKIP 1 ABORT 0 kept-speedup-sum 31.8 reward 1.956 (18.9s)
+[bandit] round 3: KEEP 2 ROLLBACK 3 SKIP 4 ABORT 0 kept-speedup-sum 23.35 reward 1.783 (17.5s)
+[bandit] round 4: KEEP 6 ROLLBACK 1 SKIP 2 ABORT 0 kept-speedup-sum 54.57 reward 12.04 (19.8s)

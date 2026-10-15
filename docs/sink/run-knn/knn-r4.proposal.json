@@ -1,0 +1,107 @@
+{
+  "default_floor_us": 50.0,
+  "default_threshold": 10.0,
+  "kernels": {
+    "vbad-mix": {
+      "action": "skip",
+      "floor_us": 50.0,
+      "precedents": [
+        27
+      ],
+      "source": "knn:kernel:uncompilable",
+      "threshold": 10.0
+    },
+    "vcount-above": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [
+        14,
+        23,
+        5
+      ],
+      "source": "knn:bucket:v1|cond|len4^6",
+      "threshold": 5.74
+    },
+    "vdot": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [
+        2,
+        11,
+        20
+      ],
+      "source": "knn:bucket:v2|*|len4^6",
+      "threshold": 6.44
+    },
+    "vdot-short": {
+      "action": "sink",
+      "floor_us": 642.9,
+      "precedents": [
+        8,
+        17,
+        26
+      ],
+      "source": "knn:bucket:v2|*|len4^3:floor",
+      "threshold": 10.0
+    },
+    "vmaxabs": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [
+        6,
+        15,
+        24
+      ],
+      "source": "knn:bucket:v1|abs+max|len4^6",
+      "threshold": 8.12
+    },
+    "vnorm2": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [
+        3,
+        12,
+        21
+      ],
+      "source": "knn:bucket:v1|*+sqrt|len4^6",
+      "threshold": 7.56
+    },
+    "vscaled": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [
+        13,
+        22,
+        4
+      ],
+      "source": "knn:bucket:v1|*|len4^6",
+      "threshold": 6.16
+    },
+    "vsum": {
+      "action": "sink",
+      "floor_us": 50.0,
+      "precedents": [
+        19,
+        1,
+        9,
+        18,
+        27
+      ],
+      "source": "knn:bucket:v1|add|len4^6",
+      "threshold": 4.2
+    },
+    "vsum-short": {
+      "action": "sink",
+      "floor_us": 787.5,
+      "precedents": [
+        7,
+        16,
+        25
+      ],
+      "source": "knn:bucket:v1|add|len4^3:floor",
+      "threshold": 10.0
+    }
+  },
+  "policy": "knn",
+  "proposal": "knn-r4"
+}

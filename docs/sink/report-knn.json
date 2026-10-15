@@ -1,0 +1,575 @@
+{
+  "runner": {
+    "kind": "aura-kernel-sink scripts/policy_all.sh",
+    "sink_repo": "/workspace/aura-kernel-sink-git",
+    "sink_head": "172527b",
+    "aura_bin": "/workspace/aura-main/build-rel/aura"
+  },
+  "rounds": 4,
+  "baseline_threshold": 10.0,
+  "learner": "knn",
+  "reward_model": {
+    "KEEP": "log(speedup)",
+    "ROLLBACK": -1.0,
+    "ABORT": -2.0,
+    "SKIP": 0.0,
+    "SKIP@compile": -0.1
+  },
+  "per_round": {
+    "fixed": [
+      {
+        "arm": "fixed",
+        "round": 1,
+        "proposal": {
+          "proposal": "fixed-r1",
+          "policy": "fixed:10",
+          "default_threshold": 10.0,
+          "default_floor_us": 50.0,
+          "kernels": {}
+        },
+        "seconds": 19.8,
+        "keep": 2,
+        "rollback": 6,
+        "skip": 1,
+        "abort": 0,
+        "kept_speedup_sum": 25.75,
+        "kept_speedup_geomean": 12.74,
+        "reward": -1.011,
+        "kept": [
+          "vmaxabs",
+          "vnorm2"
+        ],
+        "rolled_back": [
+          "vcount-above",
+          "vdot",
+          "vdot-short",
+          "vscaled",
+          "vsum",
+          "vsum-short"
+        ]
+      },
+      {
+        "arm": "fixed",
+        "round": 2,
+        "proposal": {
+          "proposal": "fixed-r2",
+          "policy": "fixed:10",
+          "default_threshold": 10.0,
+          "default_floor_us": 50.0,
+          "kernels": {}
+        },
+        "seconds": 18.8,
+        "keep": 2,
+        "rollback": 6,
+        "skip": 1,
+        "abort": 0,
+        "kept_speedup_sum": 22.2,
+        "kept_speedup_geomean": 11.1,
+        "reward": -1.286,
+        "kept": [
+          "vmaxabs",
+          "vnorm2"
+        ],
+        "rolled_back": [
+          "vcount-above",
+          "vdot",
+          "vdot-short",
+          "vscaled",
+          "vsum",
+          "vsum-short"
+        ]
+      },
+      {
+        "arm": "fixed",
+        "round": 3,
+        "proposal": {
+          "proposal": "fixed-r3",
+          "policy": "fixed:10",
+          "default_threshold": 10.0,
+          "default_floor_us": 50.0,
+          "kernels": {}
+        },
+        "seconds": 19.1,
+        "keep": 2,
+        "rollback": 6,
+        "skip": 1,
+        "abort": 0,
+        "kept_speedup_sum": 22.8,
+        "kept_speedup_geomean": 11.38,
+        "reward": -1.236,
+        "kept": [
+          "vmaxabs",
+          "vnorm2"
+        ],
+        "rolled_back": [
+          "vcount-above",
+          "vdot",
+          "vdot-short",
+          "vscaled",
+          "vsum",
+          "vsum-short"
+        ]
+      },
+      {
+        "arm": "fixed",
+        "round": 4,
+        "proposal": {
+          "proposal": "fixed-r4",
+          "policy": "fixed:10",
+          "default_threshold": 10.0,
+          "default_floor_us": 50.0,
+          "kernels": {}
+        },
+        "seconds": 19.0,
+        "keep": 2,
+        "rollback": 6,
+        "skip": 1,
+        "abort": 0,
+        "kept_speedup_sum": 25.05,
+        "kept_speedup_geomean": 12.41,
+        "reward": -1.064,
+        "kept": [
+          "vmaxabs",
+          "vnorm2"
+        ],
+        "rolled_back": [
+          "vcount-above",
+          "vdot",
+          "vdot-short",
+          "vscaled",
+          "vsum",
+          "vsum-short"
+        ]
+      }
+    ],
+    "knn": [
+      {
+        "arm": "knn",
+        "round": 1,
+        "proposal": {
+          "proposal": "knn-r1",
+          "policy": "knn",
+          "default_threshold": 10.0,
+          "default_floor_us": 50.0,
+          "kernels": {}
+        },
+        "seconds": 19.6,
+        "keep": 3,
+        "rollback": 5,
+        "skip": 1,
+        "abort": 0,
+        "kept_speedup_sum": 32.43,
+        "kept_speedup_geomean": 10.79,
+        "reward": 2.036,
+        "kept": [
+          "vdot",
+          "vmaxabs",
+          "vnorm2"
+        ],
+        "rolled_back": [
+          "vcount-above",
+          "vdot-short",
+          "vscaled",
+          "vsum",
+          "vsum-short"
+        ]
+      },
+      {
+        "arm": "knn",
+        "round": 2,
+        "proposal": {
+          "proposal": "knn-r2",
+          "policy": "knn",
+          "default_threshold": 10.0,
+          "default_floor_us": 50.0,
+          "kernels": {
+            "vsum": {
+              "action": "sink",
+              "threshold": 4.48,
+              "floor_us": 50.0,
+              "source": "knn:bucket:v1|add|len4^6",
+              "precedents": [
+                1,
+                9
+              ]
+            },
+            "vdot": {
+              "action": "sink",
+              "threshold": 7.0,
+              "floor_us": 50.0,
+              "source": "knn:bucket:v2|*|len4^6",
+              "precedents": [
+                2
+              ]
+            },
+            "vnorm2": {
+              "action": "sink",
+              "threshold": 7.58,
+              "floor_us": 50.0,
+              "source": "knn:bucket:v1|*+sqrt|len4^6",
+              "precedents": [
+                3
+              ]
+            },
+            "vscaled": {
+              "action": "sink",
+              "threshold": 6.16,
+              "floor_us": 50.0,
+              "source": "knn:bucket:v1|*|len4^6",
+              "precedents": [
+                4
+              ]
+            },
+            "vcount-above": {
+              "action": "sink",
+              "threshold": 5.74,
+              "floor_us": 50.0,
+              "source": "knn:bucket:v1|cond|len4^6",
+              "precedents": [
+                5
+              ]
+            },
+            "vmaxabs": {
+              "action": "sink",
+              "threshold": 8.12,
+              "floor_us": 50.0,
+              "source": "knn:bucket:v1|abs+max|len4^6",
+              "precedents": [
+                6
+              ]
+            },
+            "vsum-short": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 787.5,
+              "source": "knn:bucket:v1|add|len4^3:floor",
+              "precedents": [
+                7
+              ]
+            },
+            "vdot-short": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 642.9,
+              "source": "knn:bucket:v2|*|len4^3:floor",
+              "precedents": [
+                8
+              ]
+            },
+            "vbad-mix": {
+              "action": "skip",
+              "threshold": 10.0,
+              "floor_us": 50.0,
+              "source": "knn:kernel:uncompilable",
+              "precedents": [
+                9
+              ]
+            }
+          }
+        },
+        "seconds": 18.4,
+        "keep": 6,
+        "rollback": 0,
+        "skip": 3,
+        "abort": 0,
+        "kept_speedup_sum": 62.85,
+        "kept_speedup_geomean": 10.05,
+        "reward": 13.847,
+        "kept": [
+          "vcount-above",
+          "vdot",
+          "vmaxabs",
+          "vnorm2",
+          "vscaled",
+          "vsum"
+        ],
+        "rolled_back": []
+      },
+      {
+        "arm": "knn",
+        "round": 3,
+        "proposal": {
+          "proposal": "knn-r3",
+          "policy": "knn",
+          "default_threshold": 10.0,
+          "default_floor_us": 50.0,
+          "kernels": {
+            "vsum": {
+              "action": "sink",
+              "threshold": 4.2,
+              "floor_us": 50.0,
+              "source": "knn:bucket:v1|add|len4^6",
+              "precedents": [
+                10,
+                1,
+                9,
+                18
+              ]
+            },
+            "vdot": {
+              "action": "sink",
+              "threshold": 6.72,
+              "floor_us": 50.0,
+              "source": "knn:bucket:v2|*|len4^6",
+              "precedents": [
+                2,
+                11
+              ]
+            },
+            "vnorm2": {
+              "action": "sink",
+              "threshold": 7.58,
+              "floor_us": 50.0,
+              "source": "knn:bucket:v1|*+sqrt|len4^6",
+              "precedents": [
+                3,
+                12
+              ]
+            },
+            "vscaled": {
+              "action": "sink",
+              "threshold": 6.16,
+              "floor_us": 50.0,
+              "source": "knn:bucket:v1|*|len4^6",
+              "precedents": [
+                13,
+                4
+              ]
+            },
+            "vcount-above": {
+              "action": "sink",
+              "threshold": 5.74,
+              "floor_us": 50.0,
+              "source": "knn:bucket:v1|cond|len4^6",
+              "precedents": [
+                14,
+                5
+              ]
+            },
+            "vmaxabs": {
+              "action": "sink",
+              "threshold": 8.12,
+              "floor_us": 50.0,
+              "source": "knn:bucket:v1|abs+max|len4^6",
+              "precedents": [
+                6,
+                15
+              ]
+            },
+            "vsum-short": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 787.5,
+              "source": "knn:bucket:v1|add|len4^3:floor",
+              "precedents": [
+                7,
+                16
+              ]
+            },
+            "vdot-short": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 642.9,
+              "source": "knn:bucket:v2|*|len4^3:floor",
+              "precedents": [
+                8,
+                17
+              ]
+            },
+            "vbad-mix": {
+              "action": "sink",
+              "threshold": 4.2,
+              "floor_us": 50.0,
+              "source": "knn:bucket:v1|add|len4^6",
+              "precedents": [
+                10,
+                1,
+                9,
+                18
+              ]
+            }
+          }
+        },
+        "seconds": 18.4,
+        "keep": 6,
+        "rollback": 0,
+        "skip": 3,
+        "abort": 0,
+        "kept_speedup_sum": 58.3,
+        "kept_speedup_geomean": 9.42,
+        "reward": 13.355,
+        "kept": [
+          "vcount-above",
+          "vdot",
+          "vmaxabs",
+          "vnorm2",
+          "vscaled",
+          "vsum"
+        ],
+        "rolled_back": []
+      },
+      {
+        "arm": "knn",
+        "round": 4,
+        "proposal": {
+          "proposal": "knn-r4",
+          "policy": "knn",
+          "default_threshold": 10.0,
+          "default_floor_us": 50.0,
+          "kernels": {
+            "vsum": {
+              "action": "sink",
+              "threshold": 4.2,
+              "floor_us": 50.0,
+              "source": "knn:bucket:v1|add|len4^6",
+              "precedents": [
+                19,
+                1,
+                9,
+                18,
+                27
+              ]
+            },
+            "vdot": {
+              "action": "sink",
+              "threshold": 6.44,
+              "floor_us": 50.0,
+              "source": "knn:bucket:v2|*|len4^6",
+              "precedents": [
+                2,
+                11,
+                20
+              ]
+            },
+            "vnorm2": {
+              "action": "sink",
+              "threshold": 7.56,
+              "floor_us": 50.0,
+              "source": "knn:bucket:v1|*+sqrt|len4^6",
+              "precedents": [
+                3,
+                12,
+                21
+              ]
+            },
+            "vscaled": {
+              "action": "sink",
+              "threshold": 6.16,
+              "floor_us": 50.0,
+              "source": "knn:bucket:v1|*|len4^6",
+              "precedents": [
+                13,
+                22,
+                4
+              ]
+            },
+            "vcount-above": {
+              "action": "sink",
+              "threshold": 5.74,
+              "floor_us": 50.0,
+              "source": "knn:bucket:v1|cond|len4^6",
+              "precedents": [
+                14,
+                23,
+                5
+              ]
+            },
+            "vmaxabs": {
+              "action": "sink",
+              "threshold": 8.12,
+              "floor_us": 50.0,
+              "source": "knn:bucket:v1|abs+max|len4^6",
+              "precedents": [
+                6,
+                15,
+                24
+              ]
+            },
+            "vsum-short": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 787.5,
+              "source": "knn:bucket:v1|add|len4^3:floor",
+              "precedents": [
+                7,
+                16,
+                25
+              ]
+            },
+            "vdot-short": {
+              "action": "sink",
+              "threshold": 10.0,
+              "floor_us": 642.9,
+              "source": "knn:bucket:v2|*|len4^3:floor",
+              "precedents": [
+                8,
+                17,
+                26
+              ]
+            },
+            "vbad-mix": {
+              "action": "skip",
+              "threshold": 10.0,
+              "floor_us": 50.0,
+              "source": "knn:kernel:uncompilable",
+              "precedents": [
+                27
+              ]
+            }
+          }
+        },
+        "seconds": 18.2,
+        "keep": 6,
+        "rollback": 0,
+        "skip": 3,
+        "abort": 0,
+        "kept_speedup_sum": 57.5,
+        "kept_speedup_geomean": 9.34,
+        "reward": 13.404,
+        "kept": [
+          "vcount-above",
+          "vdot",
+          "vmaxabs",
+          "vnorm2",
+          "vscaled",
+          "vsum"
+        ],
+        "rolled_back": []
+      }
+    ]
+  },
+  "totals": {
+    "fixed": {
+      "keep": 8,
+      "rollback": 24,
+      "skip": 4,
+      "abort": 0,
+      "kept_speedup_sum": 95.8,
+      "reward": -4.597
+    },
+    "knn": {
+      "keep": 21,
+      "rollback": 5,
+      "skip": 10,
+      "abort": 0,
+      "kept_speedup_sum": 211.08,
+      "reward": 42.642
+    }
+  },
+  "totals_after_round1": {
+    "fixed": {
+      "keep": 6,
+      "rollback": 18,
+      "kept_speedup_sum": 70.05,
+      "reward": -3.586
+    },
+    "knn": {
+      "keep": 18,
+      "rollback": 0,
+      "kept_speedup_sum": 178.65,
+      "reward": 40.606
+    }
+  },
+  "replay_tuples": 27,
+  "workdir": "docs/sink/run-knn"
+}

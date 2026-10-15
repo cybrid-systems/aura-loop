@@ -1,0 +1,6 @@
+{
+  "aura": {"repo": "https://github.com/cybrid-systems/aura", "commit": "542fb9254",
+           "build": "build-rel in ghcr.io/cybrid-systems/dev:v1.0.9", "face": "soft (AURA_SANDBOX=off AURA_PIPELINE_STRICT=0)"},
+  "aura-kernel-sink": {"repo": "https://github.com/cybrid-systems/aura-kernel-sink", "commit": "172527b",
+                       "entry": "scripts/policy_all.sh (SINK_PROPOSAL / SINK_ROUND / SINK_TRAJECTORY)"}
+}
