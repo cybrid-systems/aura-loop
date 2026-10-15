@@ -23,6 +23,33 @@ CREATE TABLE IF NOT EXISTS transitions (
   embedding  BLOB            -- stub: reserved for a later vector index (pgvector/LanceDB/...)
 );
 CREATE INDEX IF NOT EXISTS idx_transitions_symbol ON transitions(symbol, verdict);
+
+-- aura-kernel-sink decisions (aura_loop/sink_ingest.py). Same store, second
+-- table: it is both the retrieval memory of the sink policy and its replay
+-- buffer (state, action, reward) for a later RL learner.
+CREATE TABLE IF NOT EXISTS sink_transitions (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  repo       TEXT NOT NULL,
+  kernel     TEXT NOT NULL,
+  shape      TEXT NOT NULL,             -- shape bucket key (sink_ingest.shape_key)
+  state      TEXT NOT NULL,             -- JSON: kernel shape features + Soft cost
+  action     TEXT NOT NULL CHECK (action IN ('sink','skip')),
+  threshold  REAL NOT NULL,
+  floor_us   REAL NOT NULL,
+  decision   TEXT NOT NULL CHECK (decision IN ('KEEP','ROLLBACK','SKIP','ABORT')),
+  stage      TEXT NOT NULL DEFAULT '',
+  speedup    REAL NOT NULL DEFAULT 0,
+  soft_us    REAL NOT NULL DEFAULT 0,
+  reward     REAL NOT NULL,
+  round      INTEGER NOT NULL DEFAULT 0,
+  arm        TEXT NOT NULL DEFAULT '',  -- which policy proposed it (fixed:<t>, knn, bandit, ...)
+  proposal   TEXT NOT NULL DEFAULT '',
+  raw        TEXT NOT NULL,             -- the trajectory line as written by aura-kernel-sink
+  digest     TEXT NOT NULL UNIQUE,      -- sha256 of raw: re-ingesting a file is a no-op
+  ts         REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_sink_shape ON sink_transitions(shape, decision);
+CREATE INDEX IF NOT EXISTS idx_sink_kernel ON sink_transitions(kernel, round);
 """
 
 
@@ -96,3 +123,26 @@ class Memory:
 
     def all(self) -> list[Precedent]:
         return self._rows("ORDER BY id")
+
+
+    # ---- aura-kernel-sink transitions (see sink_ingest.py)
+    SINK_COLS = ("id,repo,kernel,shape,state,action,threshold,floor_us,decision,stage,speedup,soft_us,"
+                 "reward,round,arm,proposal,raw,digest,ts")
+
+    def sink_writeback(self, row: dict) -> int | None:
+        """Insert one sink transition; returns its id, or None if this exact line was ingested before."""
+        cols = [c for c in self.SINK_COLS.split(",") if c != "id"]
+        try:
+            cur = self.db.execute(f"INSERT INTO sink_transitions({','.join(cols)}) VALUES ({','.join('?' * len(cols))})",
+                                  tuple(row[c] for c in cols))
+        except sqlite3.IntegrityError as e:
+            if "UNIQUE" in str(e):
+                return None
+            raise
+        self.db.commit()
+        return int(cur.lastrowid)
+
+    def sink_rows(self, where: str = "", args=()) -> list[dict]:
+        cols = self.SINK_COLS.split(",")
+        return [dict(zip(cols, r)) for r in
+                self.db.execute(f"SELECT {self.SINK_COLS} FROM sink_transitions {where}", args)]
