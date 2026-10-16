@@ -83,6 +83,24 @@ def sink(a) -> int:
     return 0
 
 
+def adapt(a) -> int:
+    from .adapt_ingest import AdaptPolicy, ingest, summary
+    from .memory import Memory
+
+    mem = Memory(a.db)
+    ids = []
+    for f in a.adapt_ingest or []:
+        ids += ingest(mem, f, arm=a.adapt_arm)
+    rows = mem.adapt_rows()
+    out = {"ingested": len(ids), "rows": len(rows), "decisions": summary(rows)}
+    if a.adapt_propose:
+        p = AdaptPolicy().propose(mem)
+        Path(a.adapt_propose).write_text(json.dumps(p["proposal"], indent=2) + "\n")
+        out["proposal"] = p
+    print(json.dumps(out, indent=2))
+    return 0
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="aura_loop", description="Aura closed-loop control")
     ap.add_argument("--e2e", action="store_true",
@@ -112,7 +130,15 @@ def main(argv=None) -> int:
     sk.add_argument("--sink-workdir", default=None, help="proposals + trajectories per round (default: tmp)")
     sk.add_argument("--sink-db-dir", default=None, help="keep the per-arm SQLite memories here")
     sk.add_argument("--out", default=None, help="also write the JSON report here")
+    ad = ap.add_argument_group("aura-rocks structure switching")
+    ad.add_argument("--adapt-ingest", nargs="*", default=None,
+                    help="ingest aura-rocks adapt trajectories (build/adapt-traj.jsonl) into --db")
+    ad.add_argument("--adapt-arm", default="ingest", help="arm label for --adapt-ingest rows")
+    ad.add_argument("--adapt-propose", default=None,
+                    help="write learned thresholds (ADAPT_PROPOSAL json for aura-rocks) to this path")
     a = ap.parse_args(argv)
+    if a.adapt_ingest is not None or a.adapt_propose:
+        return adapt(a)
     if a.sink or a.sink_ingest is not None:
         return sink(a)
     if a.e2e:

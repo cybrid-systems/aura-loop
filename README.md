@@ -144,6 +144,49 @@ bandit（`docs/sink/report-bandit.json`）收敛得慢：第 2–4 轮 KEEP 11 /
 
 Per-round proposals, trajectories and logs: `docs/sink/run-knn/`, `docs/sink/run-bandit/`.
 
+## aura-rocks 结构切换 / Structure-switch policy (aura-rocks)
+
+[aura-rocks](https://github.com/cybrid-systems/aura-rocks) 在运行时通过热重绑定 workspace define 来切换 memtable 表示（skiplist / vector / hash）和 compaction 风格（leveled / tiered）（`lib/adapt.aura`）。每个决策写一行 JSONL：观测特征（state）、`from -> to`（action）、门控或事后检查结果，以及 reward。
+
+- **SWAP**（门控通过；记录影子回放的加速比）
+- **KEEP**（事后检查实测加速，reward = `log(speedup)`）
+- **ROLLBACK**（实测变慢，已重绑定回旧值，reward = -1）
+- **REJECT**（门控加速不足，没有切换，reward = -0.1）
+- **ABORT**（影子回放答案不一致，reward = -2）
+
+`aura_loop/adapt_ingest.py` 的处理：
+
+- 把这些行存进 `adapt_rows`（重复导入是 no-op）；
+- 把每个 SWAP 和它的事后结果配成 (state, action, reward)；
+- `AdaptPolicy` 为每条规则学习阈值：在网格上选使规则仍会执行的切换的实测 reward 之和最大的阈值，实测样本少于 3 个时保留默认值；
+- 写成 aura-rocks 读取的 `ADAPT_PROPOSAL` json。
+
+引擎本身不学习，只执行收到的 proposal。
+
+aura-rocks changes its memtable representation (skiplist / vector / hash) and compaction style (leveled / tiered) at runtime by hot rebinding workspace defines (`lib/adapt.aura`). Each decision is one JSONL row with the observer features (state), `from -> to` (action), the gate or post-check outcome, and a reward:
+
+- **SWAP**: the gate passed; the row records the shadow-replay speedup.
+- **KEEP**: the post check measured a speedup; reward = `log(speedup)`.
+- **ROLLBACK**: the post check measured a slowdown and the old value was rebound; reward = -1.
+- **REJECT**: the gate speedup was too small, so nothing was swapped; reward = -0.1.
+- **ABORT**: the shadow replay gave different answers; reward = -2.
+
+`aura_loop/adapt_ingest.py` processes these rows:
+
+- It stores them in `adapt_rows`. Re-ingesting the same file is a no-op.
+- It pairs each SWAP with its post outcome as (state, action, reward).
+- `AdaptPolicy` learns each rule's threshold. On a grid, it picks the threshold that maximizes the summed realized reward of the swaps the rule would still take. A rule with fewer than 3 realized swaps keeps its default.
+- It writes the result as the `ADAPT_PROPOSAL` json that aura-rocks reads.
+
+The engine itself does not learn; it follows the proposal it is given.
+
+```sh
+python3 -m aura_loop --db loop.db --adapt-ingest ../aura-rocks/build/adapt-traj.jsonl --adapt-propose proposal.json
+ADAPT_PROPOSAL=$PWD/proposal.json BENCH_CFG=adaptive $AURA_BIN ../aura-rocks/scripts/bench_adapt.aura
+```
+
+Test: `tests/test_adapt_ingest.py`, fixture `fixtures/adapt/trajectory-test.jsonl`. The fixture is the trajectory from aura-rocks `tests/test_adapt.aura`.
+
 ## Layout
 
 ```

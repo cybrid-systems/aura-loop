@@ -50,6 +50,28 @@ CREATE TABLE IF NOT EXISTS sink_transitions (
 );
 CREATE INDEX IF NOT EXISTS idx_sink_shape ON sink_transitions(shape, decision);
 CREATE INDEX IF NOT EXISTS idx_sink_kernel ON sink_transitions(kernel, round);
+
+-- aura-rocks structure-switch decisions (aura_loop/adapt_ingest.py): one row
+-- per trajectory line (SWAP at the gate, KEEP/ROLLBACK at the post check,
+-- REJECT/ABORT at the gate); AdaptPolicy pairs a SWAP with its post outcome.
+CREATE TABLE IF NOT EXISTS adapt_rows (
+  id        INTEGER PRIMARY KEY AUTOINCREMENT,
+  repo      TEXT NOT NULL,
+  knob      TEXT NOT NULL,
+  from_v    TEXT NOT NULL,
+  to_v      TEXT NOT NULL,
+  decision  TEXT NOT NULL CHECK (decision IN ('SWAP','KEEP','ROLLBACK','REJECT','ABORT')),
+  stage     TEXT NOT NULL DEFAULT '',
+  speedup   REAL NOT NULL DEFAULT 0,
+  reward    REAL NOT NULL,
+  label     TEXT NOT NULL DEFAULT '',
+  state     TEXT NOT NULL,            -- JSON: observer features at the decision
+  arm       TEXT NOT NULL DEFAULT '',
+  raw       TEXT NOT NULL,
+  digest    TEXT NOT NULL UNIQUE,
+  ts        REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_adapt_knob ON adapt_rows(knob, to_v, decision);
 """
 
 
@@ -141,6 +163,26 @@ class Memory:
             raise
         self.db.commit()
         return int(cur.lastrowid)
+
+    # ---- aura-rocks structure-switch rows (see adapt_ingest.py)
+    ADAPT_COLS = "id,repo,knob,from_v,to_v,decision,stage,speedup,reward,label,state,arm,raw,digest,ts"
+
+    def adapt_writeback(self, row: dict) -> int | None:
+        cols = [c for c in self.ADAPT_COLS.split(",") if c != "id"]
+        try:
+            cur = self.db.execute(f"INSERT INTO adapt_rows({','.join(cols)}) VALUES ({','.join('?' * len(cols))})",
+                                  tuple(row[c] for c in cols))
+        except sqlite3.IntegrityError as e:
+            if "UNIQUE" in str(e):
+                return None
+            raise
+        self.db.commit()
+        return int(cur.lastrowid)
+
+    def adapt_rows(self, where: str = "", args=()) -> list[dict]:
+        cols = self.ADAPT_COLS.split(",")
+        return [dict(zip(cols, r)) for r in
+                self.db.execute(f"SELECT {self.ADAPT_COLS} FROM adapt_rows {where}", args)]
 
     def sink_rows(self, where: str = "", args=()) -> list[dict]:
         cols = self.SINK_COLS.split(",")
